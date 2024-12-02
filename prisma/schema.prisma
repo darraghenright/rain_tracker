@@ -1,0 +1,15 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model RainReport {
+  @@map("rain_report")
+  id        Int      @default(autoincrement()) @id
+  rain      Boolean
+  timestamp DateTime @default(now())
+}
