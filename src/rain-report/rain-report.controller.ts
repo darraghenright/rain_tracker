@@ -1,9 +1,9 @@
 import { Controller, Get } from '@nestjs/common';
 
 @Controller('data')
-export class DataController {
+export class RainReportController {
   @Get()
-  list() {
+  async index() {
     return null;
   }
 }

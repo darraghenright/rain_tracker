@@ -3,7 +3,7 @@ import { RainReportService } from './rain-report.service';
 import { PrismaClient } from '@prisma/client';
 
 describe('RainReportService', () => {
-  let prisma: PrismaClient;
+  let database: PrismaClient;
   let rainReportService: RainReportService;
 
   beforeEach(async () => {
@@ -11,38 +11,42 @@ describe('RainReportService', () => {
       providers: [RainReportService],
     }).compile();
 
-    prisma = new PrismaClient();
+    database = new PrismaClient();
     rainReportService = module.get<RainReportService>(RainReportService);
   });
 
   describe('RainReportService', () => {
     it('should return a list of rain reports', async () => {
       // clear any existing rain reports
-      await prisma.rainReport.deleteMany();
+      await database.rainReport.deleteMany();
+
+      // assert that there are no records
+      const records = await rainReportService.all();
+      expect(records).toStrictEqual([]);
 
       // insert test fixtures
-      const insertMidnight = {
+      const reportMidnight = {
         rain: true,
         timestamp: new Date('2024-12-04T00:00:00Z'),
       };
 
-      const insertMidday = {
+      const reportMidday = {
         rain: false,
         timestamp: new Date('2024-12-04T12:00:00Z'),
       };
 
-      await prisma.rainReport.createMany({
-        data: [insertMidnight, insertMidday],
+      await database.rainReport.createMany({
+        data: [reportMidnight, reportMidday],
       });
 
       // fetch all rain reports
       const [recordMidnight, recordMidday] = await rainReportService.all();
 
       // assert expectations
-      expect(recordMidnight.rain).toBe(insertMidnight.rain);
-      expect(recordMidday.rain).toBe(insertMidday.rain);
-      expect(recordMidnight.timestamp).toStrictEqual(insertMidnight.timestamp);
-      expect(recordMidday.timestamp).toStrictEqual(insertMidday.timestamp);
+      expect(recordMidnight.rain).toBe(reportMidnight.rain);
+      expect(recordMidday.rain).toBe(reportMidday.rain);
+      expect(recordMidnight.timestamp).toStrictEqual(reportMidnight.timestamp);
+      expect(recordMidday.timestamp).toStrictEqual(reportMidday.timestamp);
     });
   });
 });
