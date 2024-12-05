@@ -40,14 +40,18 @@ describe('RainReportService', () => {
       });
 
       // fetch all rain reports
-      const [recordMidnight, recordMidday] = await rainReportService.all();
+      const [recordMidday, recordMidnight] = await rainReportService.all();
 
-      // assert expectations
-      expect(recordMidnight).toStrictEqual(reportMidnight);
+      // assert that returned records match inserted data
       expect(recordMidday).toStrictEqual(reportMidday);
+      expect(recordMidnight).toStrictEqual(reportMidnight);
 
-      expect(recordMidnight['id']).toBeUndefined();
+      // assert that returned records do not include `id`
       expect(recordMidday['id']).toBeUndefined();
+      expect(recordMidnight['id']).toBeUndefined();
+
+      // assert that the result set is in descending order by `timestamp`
+      expect(recordMidday.timestamp > recordMidnight.timestamp).toBe(true);
     });
   });
 });

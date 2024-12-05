@@ -26,10 +26,15 @@ describe('AppController (e2e)', () => {
   });
 
   it('GET /api/data should return a list of data`', async () => {
-    // route automatically uses the global `/api` prefix
-    const expectedLength = SEED_DATA.length;
-    const expectedBody = JSON.parse(JSON.stringify(SEED_DATA));
+    // ensure data is in descending order by `timestamp`
+    const orderedSeedData = SEED_DATA.sort(
+      (a, b) => b.timestamp.getTime() - a.timestamp.getTime(),
+    );
 
+    const expectedBody = JSON.parse(JSON.stringify(orderedSeedData));
+    const expectedLength = SEED_DATA.length;
+
+    // route automatically uses the global `/api` prefix
     await request(app.getHttpServer())
       .get('/data')
       .expect(HttpStatus.OK)
