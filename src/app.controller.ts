@@ -1,12 +1,20 @@
-import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
+import {
+  Controller,
+  Get,
+  HttpCode,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
-
+  /**
+   * Placeholder root API endpoint.
+   * Throws `501 Not Implemented` error.
+   */
   @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  @HttpCode(501)
+  index() {
+    throw new HttpException('Not Implemented', HttpStatus.NOT_IMPLEMENTED);
   }
 }

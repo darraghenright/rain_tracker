@@ -1,0 +1,47 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { RainReportService } from './rain-report.service';
+import { seedDatabase, SEED_DATA } from '../../test/utils';
+import { PrismaClient } from '@prisma/client';
+
+describe('RainReportService', () => {
+  let rainReportService: RainReportService;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [RainReportService],
+    }).compile();
+
+    rainReportService = module.get<RainReportService>(RainReportService);
+
+    await seedDatabase();
+  });
+
+  describe('RainReportService.all()', () => {
+    it('should return a list of rain reports', async () => {
+      // fetch all rain reports
+      const [recordMidday, recordMidnight] = await rainReportService.all();
+
+      // assert that returned records match inserted data
+      const [reportMidnight, reportMidday] = SEED_DATA;
+      expect(recordMidday).toStrictEqual(reportMidday);
+      expect(recordMidnight).toStrictEqual(reportMidnight);
+
+      // assert that returned records do not include `id`
+      expect(recordMidday['id']).toBeUndefined();
+      expect(recordMidnight['id']).toBeUndefined();
+
+      // assert that the result set is in descending order by `timestamp`
+      expect(recordMidday.timestamp > recordMidnight.timestamp).toBe(true);
+    });
+
+    it('should return an empty array if no rain reports exist', async () => {
+      // clear all rain reports
+      const database = new PrismaClient();
+      await database.$executeRaw`TRUNCATE TABLE "rain_report" CASCADE`;
+
+      // assert that an empty result set is returned
+      const records = await rainReportService.all();
+      expect(records).toStrictEqual([]);
+    });
+  });
+});

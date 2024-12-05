@@ -1,22 +1,25 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { HttpStatus } from '@nestjs/common';
 
 describe('AppController', () => {
-  let appController: AppController;
+  let controller: AppController;
 
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
       controllers: [AppController],
-      providers: [AppService],
     }).compile();
 
-    appController = app.get<AppController>(AppController);
+    controller = app.get<AppController>(AppController);
   });
 
-  describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+  describe('/api', () => {
+    it('should return `501 Not Implemented`"', () => {
+      try {
+        controller.index();
+      } catch (error) {
+        expect(error.status).toBe(HttpStatus.NOT_IMPLEMENTED);
+      }
     });
   });
 });
