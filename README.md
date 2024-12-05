@@ -1,20 +1,33 @@
-# rain_tracker
+# Rain Tracker
 
 ## Description
 
-WIP. An API to track and report on rainfall.
+An API to track and report on rainfall. Build with [NestJS](https://nestjs.com/) and TypeScript.
 
-## Prerequisites
+## Development
+
+### Prerequisites
 
 The following tools are required to run the project:
 
-* [Docker](https://www.docker.com/) with [Docker Compose](https://docs.docker.com/compose/install/)
-* [Node.js](https://nodejs.org/en/download/package-manager)
+- [Docker](https://www.docker.com/) with [Docker Compose](https://docs.docker.com/compose/install/)
+- [Node.js](https://nodejs.org/en/download/package-manager)
 
+Refer to the `.tool-versions` file in the project root for the preferred Node version to install. If you are using [adsf](https://asdf-vm.com/) you can install this version by running:
 
-## Up and running
+```shell
+asdf install
+```
 
-Clone the repository:
+The [Nest CLI](https://docs.nestjs.com/cli/overview) tool is required to run various commands such as generators during development. This can be installed globally by running:
+
+```shell
+npm install -g @nestjs/cli
+```
+
+### Up and running
+
+Clone this repository:
 
 ```shell
 git clone https://github.com/darraghenright/rain_tracker.git
@@ -44,16 +57,24 @@ Stop Docker services:
 make stop
 ```
 
-Remove Docker services. This will stop and delete all docker containers and remove PostgreSQL data:
+Remove Docker services. This will stop and delete all docker containers and remove all PostgreSQL data:
 
 ```shell
 make down
 ```
 
-## Development
+### Tests
 
-Install the [Nest CLI](https://docs.nestjs.com/cli/overview#installation):
+To run specs, run:
 
 ```shell
-npm install -g @nestjs/cli
+npm run test
+# or run tests in watch mode
+npm run test:watch
+```
+
+To run end-to-end tests, run:
+
+```shell
+npm run test:e2e
 ```
