@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { RainReportService } from './rain-report.service';
+import { seedDatabase, SEED_DATA } from '../../test/utils';
 import { PrismaClient } from '@prisma/client';
 
 describe('RainReportService', () => {
-  let database: PrismaClient;
   let rainReportService: RainReportService;
 
   beforeEach(async () => {
@@ -11,38 +11,18 @@ describe('RainReportService', () => {
       providers: [RainReportService],
     }).compile();
 
-    database = new PrismaClient();
     rainReportService = module.get<RainReportService>(RainReportService);
+
+    await seedDatabase();
   });
 
   describe('RainReportService.all()', () => {
     it('should return a list of rain reports', async () => {
-      // clear any existing rain reports
-      await database.rainReport.deleteMany();
-
-      // assert that there are no records
-      const records = await rainReportService.all();
-      expect(records).toStrictEqual([]);
-
-      // insert test fixtures
-      const reportMidnight = {
-        rain: true,
-        timestamp: new Date('2024-12-04T00:00:00Z'),
-      };
-
-      const reportMidday = {
-        rain: false,
-        timestamp: new Date('2024-12-04T12:00:00Z'),
-      };
-
-      await database.rainReport.createMany({
-        data: [reportMidnight, reportMidday],
-      });
-
       // fetch all rain reports
       const [recordMidday, recordMidnight] = await rainReportService.all();
 
       // assert that returned records match inserted data
+      const [reportMidnight, reportMidday] = SEED_DATA;
       expect(recordMidday).toStrictEqual(reportMidday);
       expect(recordMidnight).toStrictEqual(reportMidnight);
 
@@ -52,6 +32,16 @@ describe('RainReportService', () => {
 
       // assert that the result set is in descending order by `timestamp`
       expect(recordMidday.timestamp > recordMidnight.timestamp).toBe(true);
+    });
+
+    it('should return an empty array if no rain reports exist', async () => {
+      // clear all rain reports
+      const database = new PrismaClient();
+      await database.$executeRaw`TRUNCATE TABLE "rain_report" CASCADE`;
+
+      // assert that an empty result set is returned
+      const records = await rainReportService.all();
+      expect(records).toStrictEqual([]);
     });
   });
 });
