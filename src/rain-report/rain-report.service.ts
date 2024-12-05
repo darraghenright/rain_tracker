@@ -15,4 +15,13 @@ export class RainReportService {
       orderBy: { timestamp: 'desc' },
     });
   }
+
+  /**
+   * Create a new `RainReport` record for the current datetime.
+   */
+  async create(isRaining: boolean): Promise<void> {
+    await this.database.rainReport.create({
+      data: { rain: isRaining, timestamp: new Date() },
+    });
+  }
 }
