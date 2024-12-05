@@ -1,24 +1,38 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { RainReportController } from './rain-report.controller';
 import { RainReportService } from './rain-report.service';
-import { PrismaClient } from '@prisma/client';
+import { SEED_DATA } from '../../test/utils';
 
 describe('RainReportController', () => {
   let controller: RainReportController;
-  let database: PrismaClient;
+  let mockRainReportService: Partial<RainReportService>;
 
   beforeEach(async () => {
+    mockRainReportService = {
+      all: jest.fn(),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       controllers: [RainReportController],
-      providers: [RainReportService],
+      providers: [
+        {
+          provide: RainReportService,
+          useValue: mockRainReportService,
+        },
+      ],
     }).compile();
 
     controller = module.get<RainReportController>(RainReportController);
-    database = new PrismaClient();
   });
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
-    expect(database).toBeDefined();
+  describe('RainReportController.index()', () => {
+    it('should call `RainReportService.all()` to retrieve data', async () => {
+      (mockRainReportService.all as jest.Mock).mockResolvedValue(SEED_DATA);
+
+      const response = await controller.index();
+
+      expect(mockRainReportService.all).toHaveBeenCalledTimes(1);
+      expect(response).toStrictEqual(SEED_DATA);
+    });
   });
 });

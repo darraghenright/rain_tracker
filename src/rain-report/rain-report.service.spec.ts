@@ -15,7 +15,7 @@ describe('RainReportService', () => {
     rainReportService = module.get<RainReportService>(RainReportService);
   });
 
-  describe('RainReportService', () => {
+  describe('RainReportService.all()', () => {
     it('should return a list of rain reports', async () => {
       // clear any existing rain reports
       await database.rainReport.deleteMany();
