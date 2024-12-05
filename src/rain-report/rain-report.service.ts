@@ -7,11 +7,14 @@ export class RainReportService {
   /**
    * Retrieve all `RainReport` records from the database.
    */
-  async all(): Promise<RainReport[]> {
+  async all() {
     // TODO: create a service and inject
     const database = new PrismaClient();
     try {
-      return await database.rainReport.findMany();
+      return await database.rainReport.findMany({
+        select: { timestamp: true, rain: true },
+        orderBy: { timestamp: 'asc' },
+      });
     } finally {
       await database.$disconnect();
     }

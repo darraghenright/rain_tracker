@@ -43,10 +43,11 @@ describe('RainReportService', () => {
       const [recordMidnight, recordMidday] = await rainReportService.all();
 
       // assert expectations
-      expect(recordMidnight.rain).toBe(reportMidnight.rain);
-      expect(recordMidday.rain).toBe(reportMidday.rain);
-      expect(recordMidnight.timestamp).toStrictEqual(reportMidnight.timestamp);
-      expect(recordMidday.timestamp).toStrictEqual(reportMidday.timestamp);
+      expect(recordMidnight).toStrictEqual(reportMidnight);
+      expect(recordMidday).toStrictEqual(reportMidday);
+
+      expect(recordMidnight['id']).toBeUndefined();
+      expect(recordMidday['id']).toBeUndefined();
     });
   });
 });
