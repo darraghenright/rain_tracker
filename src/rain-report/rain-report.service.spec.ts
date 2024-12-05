@@ -1,14 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { RainReportService } from './rain-report.service';
 import { seedDatabase, SEED_DATA } from '../../test/utils';
-import { PrismaClient } from '@prisma/client';
+import { DatabaseService } from './database.service';
 
 describe('RainReportService', () => {
   let rainReportService: RainReportService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [RainReportService],
+      providers: [DatabaseService, RainReportService],
     }).compile();
 
     rainReportService = module.get<RainReportService>(RainReportService);
@@ -36,7 +36,7 @@ describe('RainReportService', () => {
 
     it('should return an empty array if no rain reports exist', async () => {
       // clear all rain reports
-      const database = new PrismaClient();
+      const database = new DatabaseService();
       await database.$executeRaw`TRUNCATE TABLE "rain_report" CASCADE`;
 
       // assert that an empty result set is returned
