@@ -10,6 +10,7 @@ describe('RainReportController', () => {
   beforeEach(async () => {
     mockRainReportService = {
       all: jest.fn(),
+      create: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -33,6 +34,20 @@ describe('RainReportController', () => {
 
       expect(mockRainReportService.all).toHaveBeenCalledTimes(1);
       expect(response).toStrictEqual(SEED_DATA);
+    });
+  });
+
+  describe('RainReportController.create()', () => {
+    it('should call `RainReportService.create()` to report that it is raining', async () => {
+      await controller.create({ rain: true });
+      expect(mockRainReportService.create).toHaveBeenCalledTimes(1);
+      expect(mockRainReportService.create).toHaveBeenCalledWith(true);
+    });
+
+    it('should call `RainReportService.create()` to report that it is not raining', async () => {
+      await controller.create({ rain: false });
+      expect(mockRainReportService.create).toHaveBeenCalledTimes(1);
+      expect(mockRainReportService.create).toHaveBeenCalledWith(false);
     });
   });
 });

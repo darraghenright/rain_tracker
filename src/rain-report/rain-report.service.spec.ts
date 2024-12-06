@@ -65,5 +65,23 @@ describe('RainReportService', () => {
       count = await database.rainReport.count();
       expect(count).toBe(2);
     });
+
+    it('should save the current timestamp with the rain report', async () => {
+      // fake the current datetime
+      jest.useFakeTimers();
+      jest.setSystemTime(new Date('2024-12-06T00:00:00.000Z'));
+
+      // create a rain report and return the record
+      await rainReportService.create(true);
+
+      const lastRecord = await database.rainReport.findFirst({
+        orderBy: { id: 'desc' },
+      });
+
+      // assert that the record's timestamp matches the current datetime
+      expect(lastRecord.timestamp).toStrictEqual(
+        new Date('2024-12-06T00:00:00.000Z'),
+      );
+    });
   });
 });
