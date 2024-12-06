@@ -15,12 +15,12 @@ export class RainReportController {
 
   @Get()
   async index() {
-    return await this.rainReportService.all();
+    return { data: await this.rainReportService.all() };
   }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() { rain: isRaining }: CreateRainReportDto) {
-    return await this.rainReportService.create(isRaining);
+    return { data: await this.rainReportService.create(isRaining) };
   }
 }

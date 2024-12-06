@@ -28,11 +28,16 @@ describe('RainReportController (e2e)', () => {
 
   it('GET /api/data should return a list of data`', async () => {
     // ensure data is in descending order by `timestamp`
+    // ensure `Date` objects are cast to strings
     const orderedSeedData = SEED_DATA.sort(
       (a, b) => b.timestamp.getTime() - a.timestamp.getTime(),
-    );
+    ).map(({ rain, timestamp }) => ({
+      rain,
+      timestamp: timestamp.toISOString(),
+    }));
 
-    const expectedBody = JSON.parse(JSON.stringify(orderedSeedData));
+    // expected response body and data count
+    const expectedBody = { data: orderedSeedData };
     const expectedLength = SEED_DATA.length;
 
     // route automatically uses the global `/api` prefix
@@ -41,8 +46,8 @@ describe('RainReportController (e2e)', () => {
       .expect(HttpStatus.OK)
       .expect('Content-Type', 'application/json; charset=utf-8')
       .expect((response) => {
-        expect(response.body).toHaveLength(expectedLength);
-        expect(response.body).toEqual(expectedBody);
+        expect(response.body).toStrictEqual(expectedBody);
+        expect(response.body.data.length).toStrictEqual(expectedLength);
       });
   });
 
@@ -55,6 +60,15 @@ describe('RainReportController (e2e)', () => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2024-12-06T00:00:00.000Z'));
 
+    // expected response body
+    const expectedBody = {
+      data: {
+        id: 1,
+        rain: true,
+        timestamp: '2024-12-06T00:00:00.000Z',
+      },
+    };
+
     // route automatically uses the global `/api` prefix
     await request(app.getHttpServer())
       .post('/data')
@@ -62,11 +76,7 @@ describe('RainReportController (e2e)', () => {
       .expect(HttpStatus.CREATED)
       .expect('Content-Type', 'application/json; charset=utf-8')
       .expect((response) => {
-        expect(response.body).toStrictEqual({
-          id: 1,
-          rain: true,
-          timestamp: '2024-12-06T00:00:00.000Z',
-        });
+        expect(response.body).toStrictEqual(expectedBody);
       });
   });
 
