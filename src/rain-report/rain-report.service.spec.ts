@@ -56,14 +56,16 @@ describe('RainReportService', () => {
       expect(count).toBe(0);
 
       // report that it's raining
-      await rainReportService.create(true);
+      const firstReport = await rainReportService.create(true);
       count = await database.rainReport.count();
       expect(count).toBe(1);
+      expect(firstReport.rain).toBe(true);
 
       // report that it's not raining
-      await rainReportService.create(false);
+      const secondReport = await rainReportService.create(false);
       count = await database.rainReport.count();
       expect(count).toBe(2);
+      expect(secondReport.rain).toBe(false);
     });
 
     it('should save the current timestamp with the rain report', async () => {
@@ -72,14 +74,10 @@ describe('RainReportService', () => {
       jest.setSystemTime(new Date('2024-12-06T00:00:00.000Z'));
 
       // create a rain report and return the record
-      await rainReportService.create(true);
-
-      const lastRecord = await database.rainReport.findFirst({
-        orderBy: { id: 'desc' },
-      });
+      const rainReport = await rainReportService.create(true);
 
       // assert that the record's timestamp matches the current datetime
-      expect(lastRecord.timestamp).toStrictEqual(
+      expect(rainReport.timestamp).toStrictEqual(
         new Date('2024-12-06T00:00:00.000Z'),
       );
     });
