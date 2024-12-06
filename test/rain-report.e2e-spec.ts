@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { DatabaseService } from '../src/rain-report/database.service';
@@ -14,7 +14,13 @@ describe('RainReportController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe({ transform: true }));
+    app.useGlobalPipes(
+      new ValidationPipe({
+        forbidNonWhitelisted: true,
+        transform: true,
+        whitelist: true,
+      }),
+    );
 
     await app.init();
     await seedDatabase();
@@ -60,6 +66,53 @@ describe('RainReportController (e2e)', () => {
           id: 1,
           rain: true,
           timestamp: '2024-12-06T00:00:00.000Z',
+        });
+      });
+  });
+
+  it('POST /api/data should not create a new rain report for an invalid payload', async () => {
+    // route automatically uses the global `/api` prefix
+    await request(app.getHttpServer())
+      .post('/data')
+      .send({ rain: 'NOT_VALID' })
+      .expect(HttpStatus.BAD_REQUEST)
+      .expect('Content-Type', 'application/json; charset=utf-8')
+      .expect((response) => {
+        expect(response.body).toStrictEqual({
+          error: 'Bad Request',
+          message: ['rain must be a boolean value'],
+          statusCode: 400,
+        });
+      });
+  });
+
+  it('POST /api/data should not create a new rain report for missing payload', async () => {
+    // route automatically uses the global `/api` prefix
+    await request(app.getHttpServer())
+      .post('/data')
+      .expect(HttpStatus.BAD_REQUEST)
+      .expect('Content-Type', 'application/json; charset=utf-8')
+      .expect((response) => {
+        expect(response.body).toStrictEqual({
+          error: 'Bad Request',
+          message: ['rain must be a boolean value'],
+          statusCode: 400,
+        });
+      });
+  });
+
+  it('POST /api/data should not allow extra fields', async () => {
+    // route automatically uses the global `/api` prefix
+    await request(app.getHttpServer())
+      .post('/data')
+      .send({ rain: true, extra: 'NOT_VALID' })
+      .expect(HttpStatus.BAD_REQUEST)
+      .expect('Content-Type', 'application/json; charset=utf-8')
+      .expect((response) => {
+        expect(response.body).toStrictEqual({
+          error: 'Bad Request',
+          message: ['property extra should not exist'],
+          statusCode: 400,
         });
       });
   });
