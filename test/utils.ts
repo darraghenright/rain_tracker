@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { DatabaseService } from '../src/rain-report/database.service';
 
 export const SEED_DATA = [
   {
@@ -12,8 +12,7 @@ export const SEED_DATA = [
 ];
 
 export async function seedDatabase() {
-  const database = new PrismaClient();
-
-  await database.$executeRaw`TRUNCATE TABLE "rain_report" CASCADE`;
+  const database = new DatabaseService();
+  await database.$executeRaw`TRUNCATE TABLE rain_report RESTART IDENTITY`;
   await database.rainReport.createMany({ data: SEED_DATA });
 }
