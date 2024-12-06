@@ -20,7 +20,7 @@ export class RainReportController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async create(@Body() { rain: isRaining }: CreateRainReportDto) {
-    return { data: await this.rainReportService.create(isRaining) };
+  async create(@Body() { rain: isRaining, userId }: CreateRainReportDto) {
+    return { data: await this.rainReportService.create(isRaining, userId) };
   }
 }

@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { RainReport } from '@prisma/client';
 import { DatabaseService } from './database.service';
 
+type RainReportData = Partial<RainReport>;
+
 @Injectable()
 export class RainReportService {
   constructor(private readonly database: DatabaseService) {}
@@ -9,7 +11,7 @@ export class RainReportService {
   /**
    * Retrieve all `RainReport` records from the database.
    */
-  async all(): Promise<Partial<RainReport>[]> {
+  async all(): Promise<RainReportData[]> {
     return await this.database.rainReport.findMany({
       select: { rain: true, timestamp: true },
       orderBy: { timestamp: 'desc' },
@@ -20,9 +22,10 @@ export class RainReportService {
    * Create a new `RainReport` record for the current
    * datetime and return the created `RainReport` record.
    */
-  async create(isRaining: boolean): Promise<RainReport> {
+  async create(isRaining: boolean, userId: string): Promise<RainReportData> {
     return await this.database.rainReport.create({
-      data: { rain: isRaining, timestamp: new Date() },
+      data: { rain: isRaining, timestamp: new Date(), user_id: userId },
+      select: { id: true, rain: true, timestamp: true },
     });
   }
 }

@@ -3,7 +3,7 @@ import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { DatabaseService } from '../src/rain-report/database.service';
-import { seedDatabase, SEED_DATA } from './utils';
+import { seedDatabase, SEED_DATA, USER_ID } from './utils';
 
 describe('RainReportController (e2e)', () => {
   let app: INestApplication;
@@ -72,27 +72,11 @@ describe('RainReportController (e2e)', () => {
     // route automatically uses the global `/api` prefix
     await request(app.getHttpServer())
       .post('/data')
-      .send({ rain: true })
+      .send({ rain: true, userId: USER_ID })
       .expect(HttpStatus.CREATED)
       .expect('Content-Type', 'application/json; charset=utf-8')
       .expect((response) => {
         expect(response.body).toStrictEqual(expectedBody);
-      });
-  });
-
-  it('POST /api/data should not create a new rain report for an invalid payload', async () => {
-    // route automatically uses the global `/api` prefix
-    await request(app.getHttpServer())
-      .post('/data')
-      .send({ rain: 'NOT_VALID' })
-      .expect(HttpStatus.BAD_REQUEST)
-      .expect('Content-Type', 'application/json; charset=utf-8')
-      .expect((response) => {
-        expect(response.body).toStrictEqual({
-          error: 'Bad Request',
-          message: ['rain must be a boolean value'],
-          statusCode: 400,
-        });
       });
   });
 
@@ -105,7 +89,43 @@ describe('RainReportController (e2e)', () => {
       .expect((response) => {
         expect(response.body).toStrictEqual({
           error: 'Bad Request',
+          message: [
+            'rain must be a boolean value',
+            'userId should not be empty',
+            'userId must be a string',
+          ],
+          statusCode: 400,
+        });
+      });
+  });
+
+  it('POST /api/data should not create a new rain report if `rain` is missing', async () => {
+    // route automatically uses the global `/api` prefix
+    await request(app.getHttpServer())
+      .post('/data')
+      .send({ userId: USER_ID })
+      .expect(HttpStatus.BAD_REQUEST)
+      .expect('Content-Type', 'application/json; charset=utf-8')
+      .expect((response) => {
+        expect(response.body).toStrictEqual({
+          error: 'Bad Request',
           message: ['rain must be a boolean value'],
+          statusCode: 400,
+        });
+      });
+  });
+
+  it('POST /api/data should not create a new rain report if `userId` is missing', async () => {
+    // route automatically uses the global `/api` prefix
+    await request(app.getHttpServer())
+      .post('/data')
+      .send({ rain: true })
+      .expect(HttpStatus.BAD_REQUEST)
+      .expect('Content-Type', 'application/json; charset=utf-8')
+      .expect((response) => {
+        expect(response.body).toStrictEqual({
+          error: 'Bad Request',
+          message: ['userId should not be empty', 'userId must be a string'],
           statusCode: 400,
         });
       });
@@ -115,7 +135,7 @@ describe('RainReportController (e2e)', () => {
     // route automatically uses the global `/api` prefix
     await request(app.getHttpServer())
       .post('/data')
-      .send({ rain: true, extra: 'NOT_VALID' })
+      .send({ rain: true, extra: 'NOT_VALID', userId: USER_ID })
       .expect(HttpStatus.BAD_REQUEST)
       .expect('Content-Type', 'application/json; charset=utf-8')
       .expect((response) => {

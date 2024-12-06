@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { RainReportService } from './rain-report.service';
-import { seedDatabase, SEED_DATA } from '../../test/utils';
+import { seedDatabase, SEED_DATA, USER_ID } from '../../test/utils';
 import { DatabaseService } from './database.service';
 
 describe('RainReportService', () => {
@@ -24,7 +24,11 @@ describe('RainReportService', () => {
       const [recordMidday, recordMidnight] = await rainReportService.all();
 
       // assert that returned records match inserted data
-      const [reportMidnight, reportMidday] = SEED_DATA;
+      // only include the fields we will return
+      const [reportMidnight, reportMidday] = SEED_DATA.map(
+        ({ rain, timestamp }) => ({ rain, timestamp }),
+      );
+
       expect(recordMidday).toStrictEqual(reportMidday);
       expect(recordMidnight).toStrictEqual(reportMidnight);
 
@@ -56,13 +60,13 @@ describe('RainReportService', () => {
       expect(count).toBe(0);
 
       // report that it's raining
-      const firstReport = await rainReportService.create(true);
+      const firstReport = await rainReportService.create(true, USER_ID);
       count = await database.rainReport.count();
       expect(count).toBe(1);
       expect(firstReport.rain).toBe(true);
 
       // report that it's not raining
-      const secondReport = await rainReportService.create(false);
+      const secondReport = await rainReportService.create(false, USER_ID);
       count = await database.rainReport.count();
       expect(count).toBe(2);
       expect(secondReport.rain).toBe(false);
@@ -74,7 +78,7 @@ describe('RainReportService', () => {
       jest.setSystemTime(new Date('2024-12-06T00:00:00.000Z'));
 
       // create a rain report and return the record
-      const rainReport = await rainReportService.create(true);
+      const rainReport = await rainReportService.create(true, USER_ID);
 
       // assert that the record's timestamp matches the current datetime
       expect(rainReport.timestamp).toStrictEqual(
