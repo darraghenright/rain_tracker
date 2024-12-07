@@ -1,26 +1,26 @@
-.PHONY: all down stop up
+.PHONY: all api_build api_run compose_down compose_stop compose_up
 
-DOCKER_IMAGE := rain-tracker
+DOCKER_IMAGE_API := rain-tracker
 
 all:
 	@echo "Usage: make [up|down|stop]"
 
-down:
+api_build:
+	@docker build -t $(DOCKER_IMAGE_API) .
+
+api_run:
+	@docker run --rm \
+		--env-file .env \
+		--name $(DOCKER_IMAGE_API) \
+		--publish 3000:3000 \
+		$(DOCKER_IMAGE_API)
+
+compose_down:
 	@docker compose down
 	@rm -rf docker/postgres/data
 
-stop:
+compose_stop:
 	@docker compose stop
 
-up:
+compose_up:
 	@docker compose up --detach
-
-docker_build:
-	@docker build -t $(DOCKER_IMAGE) .
-
-docker_run:
-	@docker run --env-file .env \
-		--name $(DOCKER_IMAGE) \
-		--rm \
-		--publish 3000:3000 \
-		$(DOCKER_IMAGE)
