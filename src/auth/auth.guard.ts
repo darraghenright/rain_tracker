@@ -6,9 +6,9 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 
-type AuthGuardResult = boolean | Promise<boolean> | Observable<boolean>;
+export const AUTH_HEADER = 'x-userid';
 
-const AUTH_HEADER = 'x-userid';
+type AuthGuardResult = boolean | Promise<boolean> | Observable<boolean>;
 
 @Injectable()
 export class AuthGuard implements CanActivate {

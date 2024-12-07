@@ -1,5 +1,5 @@
 import { ExecutionContext, UnauthorizedException } from '@nestjs/common';
-import { AuthGuard } from './auth.guard';
+import { AuthGuard, AUTH_HEADER } from './auth.guard';
 
 function createExecutionContext(headers?: Record<string, string>) {
   return {
@@ -16,15 +16,15 @@ describe('AuthGuard', () => {
     authGuard = new AuthGuard();
   });
 
-  it('should pass if `x-userId` header is present', () => {
+  it('should pass if `AUTH_HEADER` is present', () => {
     const executionContext = createExecutionContext({
-      'x-userId': 'abc123',
+      [AUTH_HEADER]: 'abc123',
     });
 
     expect(authGuard.canActivate(executionContext)).toBe(true);
   });
 
-  it('should raise an `UnauthorizedException` if `x-userId` header is missing', () => {
+  it('should raise an `UnauthorizedException` if `AUTH_HEADER` is missing', () => {
     const executionContext = createExecutionContext({});
 
     expect(() => authGuard.canActivate(executionContext)).toThrow(
@@ -32,9 +32,9 @@ describe('AuthGuard', () => {
     );
   });
 
-  it('should raise an `UnauthorizedException` if `x-userId` header is an empty string', () => {
+  it('should raise an `UnauthorizedException` if `AUTH_HEADER` is an empty string', () => {
     const executionContext = createExecutionContext({
-      'x-userId': '',
+      [AUTH_HEADER]: '',
     });
 
     expect(() => authGuard.canActivate(executionContext)).toThrow(

@@ -43,6 +43,7 @@ describe('RainReportController (e2e)', () => {
     // route automatically uses the global `/api` prefix
     await request(app.getHttpServer())
       .get('/data')
+      .set('x-userId', USER_ID)
       .expect(HttpStatus.OK)
       .expect('Content-Type', 'application/json; charset=utf-8')
       .expect((response) => {
@@ -72,7 +73,8 @@ describe('RainReportController (e2e)', () => {
     // route automatically uses the global `/api` prefix
     await request(app.getHttpServer())
       .post('/data')
-      .send({ rain: true, userId: USER_ID })
+      .set('x-userId', USER_ID)
+      .send({ rain: true })
       .expect(HttpStatus.CREATED)
       .expect('Content-Type', 'application/json; charset=utf-8')
       .expect((response) => {
@@ -84,26 +86,7 @@ describe('RainReportController (e2e)', () => {
     // route automatically uses the global `/api` prefix
     await request(app.getHttpServer())
       .post('/data')
-      .expect(HttpStatus.BAD_REQUEST)
-      .expect('Content-Type', 'application/json; charset=utf-8')
-      .expect((response) => {
-        expect(response.body).toStrictEqual({
-          error: 'Bad Request',
-          message: [
-            'rain must be a boolean value',
-            'userId should not be empty',
-            'userId must be a string',
-          ],
-          statusCode: 400,
-        });
-      });
-  });
-
-  it('POST /api/data should not create a new rain report if `rain` is missing', async () => {
-    // route automatically uses the global `/api` prefix
-    await request(app.getHttpServer())
-      .post('/data')
-      .send({ userId: USER_ID })
+      .set('x-userId', USER_ID)
       .expect(HttpStatus.BAD_REQUEST)
       .expect('Content-Type', 'application/json; charset=utf-8')
       .expect((response) => {
@@ -115,18 +98,17 @@ describe('RainReportController (e2e)', () => {
       });
   });
 
-  it('POST /api/data should not create a new rain report if `userId` is missing', async () => {
+  it('POST /api/data should not create a new rain report if `x-userId` header is missing', async () => {
     // route automatically uses the global `/api` prefix
     await request(app.getHttpServer())
       .post('/data')
       .send({ rain: true })
-      .expect(HttpStatus.BAD_REQUEST)
+      .expect(HttpStatus.UNAUTHORIZED)
       .expect('Content-Type', 'application/json; charset=utf-8')
       .expect((response) => {
         expect(response.body).toStrictEqual({
-          error: 'Bad Request',
-          message: ['userId should not be empty', 'userId must be a string'],
-          statusCode: 400,
+          message: 'Unauthorized',
+          statusCode: 401,
         });
       });
   });
@@ -135,7 +117,8 @@ describe('RainReportController (e2e)', () => {
     // route automatically uses the global `/api` prefix
     await request(app.getHttpServer())
       .post('/data')
-      .send({ rain: true, extra: 'NOT_VALID', userId: USER_ID })
+      .set('x-userId', USER_ID)
+      .send({ rain: true, extra: 'NOT_VALID' })
       .expect(HttpStatus.BAD_REQUEST)
       .expect('Content-Type', 'application/json; charset=utf-8')
       .expect((response) => {
