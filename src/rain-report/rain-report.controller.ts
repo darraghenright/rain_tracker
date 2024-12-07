@@ -20,8 +20,7 @@ export class RainReportController {
 
   @Get()
   async index(@Headers(AUTH_HEADER) userId: string) {
-    console.log(userId);
-    return { data: await this.rainReportService.all() };
+    return { data: await this.rainReportService.all(userId) };
   }
 
   @Post()

@@ -11,9 +11,10 @@ export class RainReportService {
   /**
    * Retrieve all `RainReport` records from the database.
    */
-  async all(): Promise<RainReportData[]> {
+  async all(userId: string): Promise<RainReportData[]> {
     return await this.database.rainReport.findMany({
       select: { rain: true, timestamp: true },
+      where: { user_id: userId },
       orderBy: { timestamp: 'desc' },
     });
   }

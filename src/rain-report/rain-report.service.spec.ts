@@ -19,9 +19,10 @@ describe('RainReportService', () => {
   });
 
   describe('RainReportService.all()', () => {
-    it('should return a list of rain reports', async () => {
+    it('should return a list of rain reports associated with a given `userId`', async () => {
       // fetch all rain reports
-      const [recordMidday, recordMidnight] = await rainReportService.all();
+      const [recordMidday, recordMidnight] =
+        await rainReportService.all(USER_ID);
 
       // assert that returned records match inserted data
       // only include the fields we will return
@@ -40,12 +41,12 @@ describe('RainReportService', () => {
       expect(recordMidday.timestamp > recordMidnight.timestamp).toBe(true);
     });
 
-    it('should return an empty array if no rain reports exist', async () => {
+    it('should return an empty array if no rain reports exist for a given `userId`', async () => {
       // clear all rain reports
       await database.$executeRaw`TRUNCATE TABLE rain_report RESTART IDENTITY`;
 
       // assert that an empty result set is returned
-      const records = await rainReportService.all();
+      const records = await rainReportService.all('DOES_NOT_EXIST');
       expect(records).toStrictEqual([]);
     });
   });
