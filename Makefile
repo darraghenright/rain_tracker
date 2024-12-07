@@ -4,11 +4,11 @@ all:
 	@echo "Usage: make [up|down|stop]"
 
 down:
-	@docker-compose down
+	@docker compose down
 	@rm -rf docker/postgres/data
 
 stop:
-	@docker-compose stop
+	@docker compose stop
 
 up:
-	@docker-compose up --detach
+	@docker compose up --detach

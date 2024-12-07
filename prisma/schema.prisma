@@ -12,4 +12,5 @@ model RainReport {
   id        Int      @default(autoincrement()) @id
   rain      Boolean
   timestamp DateTime @default(now())
+  user_id   String
 }

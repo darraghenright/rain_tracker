@@ -3,7 +3,7 @@ import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { DatabaseService } from '../src/rain-report/database.service';
-import { seedDatabase, SEED_DATA } from './utils';
+import { seedDatabase, SEED_DATA, USER_ID } from './utils';
 
 describe('RainReportController (e2e)', () => {
   let app: INestApplication;
@@ -43,6 +43,7 @@ describe('RainReportController (e2e)', () => {
     // route automatically uses the global `/api` prefix
     await request(app.getHttpServer())
       .get('/data')
+      .set('x-userId', USER_ID)
       .expect(HttpStatus.OK)
       .expect('Content-Type', 'application/json; charset=utf-8')
       .expect((response) => {
@@ -72,6 +73,7 @@ describe('RainReportController (e2e)', () => {
     // route automatically uses the global `/api` prefix
     await request(app.getHttpServer())
       .post('/data')
+      .set('x-userId', USER_ID)
       .send({ rain: true })
       .expect(HttpStatus.CREATED)
       .expect('Content-Type', 'application/json; charset=utf-8')
@@ -80,11 +82,11 @@ describe('RainReportController (e2e)', () => {
       });
   });
 
-  it('POST /api/data should not create a new rain report for an invalid payload', async () => {
+  it('POST /api/data should not create a new rain report for missing payload', async () => {
     // route automatically uses the global `/api` prefix
     await request(app.getHttpServer())
       .post('/data')
-      .send({ rain: 'NOT_VALID' })
+      .set('x-userId', USER_ID)
       .expect(HttpStatus.BAD_REQUEST)
       .expect('Content-Type', 'application/json; charset=utf-8')
       .expect((response) => {
@@ -96,17 +98,17 @@ describe('RainReportController (e2e)', () => {
       });
   });
 
-  it('POST /api/data should not create a new rain report for missing payload', async () => {
+  it('POST /api/data should not create a new rain report if `x-userId` header is missing', async () => {
     // route automatically uses the global `/api` prefix
     await request(app.getHttpServer())
       .post('/data')
-      .expect(HttpStatus.BAD_REQUEST)
+      .send({ rain: true })
+      .expect(HttpStatus.UNAUTHORIZED)
       .expect('Content-Type', 'application/json; charset=utf-8')
       .expect((response) => {
         expect(response.body).toStrictEqual({
-          error: 'Bad Request',
-          message: ['rain must be a boolean value'],
-          statusCode: 400,
+          message: 'Unauthorized',
+          statusCode: 401,
         });
       });
   });
@@ -115,6 +117,7 @@ describe('RainReportController (e2e)', () => {
     // route automatically uses the global `/api` prefix
     await request(app.getHttpServer())
       .post('/data')
+      .set('x-userId', USER_ID)
       .send({ rain: true, extra: 'NOT_VALID' })
       .expect(HttpStatus.BAD_REQUEST)
       .expect('Content-Type', 'application/json; charset=utf-8')
