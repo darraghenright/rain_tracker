@@ -1,14 +1,27 @@
-.PHONY: all down stop up
+.PHONY: all curl_create curl_list
 
-all:
-	@echo "Usage: make [up|down|stop]"
+DOCKER_IMAGE_API := rain-tracker
 
-down:
-	@docker compose down
-	@rm -rf docker/postgres/data
+curl_create:
+# Create a POST request to the api service
+# running in Docker compose or on the host
+# Creates a record in the database for the
+# given `x-userId`.
+	curl -v \
+	-X POST \
+	-H 'Content-Type: application/json' \
+	-H 'x-userId: abc123' \
+	http://localhost:3000/api/data \
+	-d '{"rain": $(RAIN)}'
 
-stop:
-	@docker compose stop
 
-up:
-	@docker compose up --detach
+curl_list:
+# Create a GET request to the api service
+# running in Docker compose or on the host.
+# Returns all records in the database for
+# the given `x-userId`.
+	curl -v \
+	-X GET \
+	-H 'Content-Type: application/json' \
+	-H 'x-userId: abc123' \
+	http://localhost:3000/api/data
