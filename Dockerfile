@@ -1,4 +1,4 @@
-FROM node:20-bookworm-slim
+FROM node:20-bookworm-slim AS builder
 
 WORKDIR /app
 
@@ -9,6 +9,14 @@ COPY . .
 RUN npx prisma generate
 RUN npm run build
 
-CMD ["npm", "run", "start:prod"]
+FROM node:20-bookworm-slim AS runner
 
-# TODO create multi-stage build
+WORKDIR /app
+RUN apt-get update -y && apt-get install -y openssl
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+COPY prisma ./prisma
+COPY package*.json ./
+RUN npx prisma generate
+
+CMD ["/bin/sh", "-c", "npx prisma migrate deploy && npm run start:prod"]
