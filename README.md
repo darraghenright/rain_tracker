@@ -6,7 +6,13 @@
 
 ## How to run this project
 
+### Prerequisites
+
 This project can be run as a Docker compose stack. You should have [Docker](https://www.docker.com/) with [Docker Compose](https://docs.docker.com/compose/install/) installed.
+
+Refer to the `docker-compose.yaml` file in the project root directory for further information.
+
+### Setup
 
 First, clone this repository and `cd` into it:
 
@@ -15,9 +21,9 @@ git clone https://github.com/darraghenright/rain_tracker.git
 cd rain_tracker
 ```
 
-Then, copy `.env.dist` to `.env` and use your favourite editor to edit the `.env` file and add whatever values you prefer. No other configuration setup should be required as the containers will use the values provided. Refer to the comments in this file for more information.
+Then, make a copy of the `.env.dist` called `.env`. Use your favourite editor to edit the `.env` file and add whatever values you prefer. No other configuration setup should be required as the containers will use the values provided. Refer to the comments in this file for more information.
 
-Then run the Docker compose stack:
+One environment variables are set up, run the Docker compose stack and build the services:
 
 ```shell
 docker compose up --build
@@ -29,19 +35,38 @@ This will run services in the foreground. If you want to run the services in the
 docker compose up --build --detach
 ```
 
-This will create a Docker compose stack containing:
+Running either will create a Docker compose stack containing:
 
 - The `postgres` service exposed to your host at port `5432`
 - The Rain Tracker `api` service exposed to your host at port `3000`
 
 Database migrations should be run automatically which will create the Postgres database structure.
 
+### Inteacting with the service
+
+You may interact with the service via the [interactive OpenAPI/Swagger UI](http://localhost:3000). Refer to the subsection **OpenAPI documentation** for further information. Note that all requests must contain an identity — refer to the subsection **Identity** for further information. Both subsections are found in the **Features** section of this README.
+
+If you have `curl` installed, you can run the following commands to sanity check the API and send some requests. Refer to the `Makefile` for more information:
+
+- `make curl_create RAIN=true` or `make curl_create RAIN=false`
+- `make curl_list`
+
+### Shutting down
+
 Finally, to stop the project:
 
 ```shell
 docker compose stop
-# or completely remove all containers and stack with `docker compose down`
+# or completely remove all containers and network with `docker compose down`
 ```
+
+The `postgres` service is configured to persist its `data` directory between restarts. This data is saved at the following location in the project `./docker/postgres/data`. You may remove this data at any time by running:
+
+```shell
+rm -rf ./docker/postgres/data
+```
+
+This directory and associated files will be recreated the next time you run the service.
 
 ## Features
 
@@ -196,23 +221,40 @@ Install project dependencies:
 npm install
 ```
 
-Start Docker services (PostgreSQL) in the background:
+Start the `postgres` Docker service in the background:
 
 ```shell
-make up
+docker compose up postgres --detach
 ```
 
-Stop Docker services:
+Once the `postgres` service is started, you'll have to run migrations manually. Refer to `./prisma/migrations` for further details:
 
 ```shell
-make stop
+npx prisma migrate dev
 ```
 
-Remove Docker services. This will stop and delete all docker containers and remove all PostgreSQL data:
+Finally, start the Rain Tracker `api` on your host in development mode:
 
 ```shell
-make down
+npm run start:dev
 ```
+
+Visit the OpenAPI/Swagger UI documentation at http://localhost:3000/
+
+To stop the `postgres` service:
+
+```shell
+docker compose stop
+# or completely remove all containers and network with `docker compose down`
+```
+
+The `postgres` service is configured to persist its `data` directory between restarts. This data is saved at the following location in the project `./docker/postgres/data`. You may remove this data at any time by running:
+
+```shell
+rm -rf ./docker/postgres/data
+```
+
+This directory and associated files will be recreated the next time you run the service.
 
 ### Tests
 
