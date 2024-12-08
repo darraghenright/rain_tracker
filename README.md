@@ -23,6 +23,8 @@ cd rain_tracker
 
 Then, make a copy of the `.env.dist` called `.env`. Use your favourite editor to edit the `.env` file and add whatever values you prefer. No other configuration setup should be required as the containers will use the values provided. Refer to the comments in this file for more information.
 
+IMPORTANT: the value of the PG `hostname` in the `API_DATABASE_URL` connection URL may not be `localhost` when running this service. This depends on your operating system and how you run Docker. Please refer to the comments in `.env.dist` for advice and further information.
+
 One environment variables are set up, run the Docker compose stack and build the services:
 
 ```shell
