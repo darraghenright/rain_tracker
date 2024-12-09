@@ -2,7 +2,7 @@
 
 ## Introduction
 
-**Rain Tracker** is a small API to create and serve rainfall reports. It is a Node and TypeScript based application, built with [NestJS](https://nestjs.com/) and [Prisma ORM](http://prisma.com), and uses PostgreSQL for data persistence.
+**Rain Tracker** is a small API to create and serve rainfall reports. It is a Node and TypeScript based application, built with [NestJS](https://nestjs.com/) and [Prisma ORM](https://prisma.io), and uses PostgreSQL for data persistence.
 
 ## How to run this project
 
